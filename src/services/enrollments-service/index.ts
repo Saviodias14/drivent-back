@@ -1,11 +1,10 @@
 import { Address, Enrollment } from '@prisma/client';
 import { request } from '@/utils/request';
-import { invalidDataError, notFoundError } from '@/errors';
+import { notFoundError } from '@/errors';
 import addressRepository, { CreateAddressParams } from '@/repositories/address-repository';
 import enrollmentRepository, { CreateEnrollmentParams } from '@/repositories/enrollment-repository';
 import { exclude } from '@/utils/prisma-utils';
 import { ViaCEPAddress } from '@/protocols';
-import httpStatus from 'http-status';
 
 // TODO - Receber o CEP por parâmetro nesta função.
 async function getAddressFromCEP(cep: string) {
@@ -16,11 +15,11 @@ async function getAddressFromCEP(cep: string) {
     throw notFoundError();
   }
   const { logradouro, complemento, bairro, localidade, uf }: ViaCEPAddress = result.data
-  const data: ViaCEPAddress = {
+  const data = {
     logradouro,
     complemento,
     bairro,
-    localidade,
+    cidade:localidade,
     uf,
   };
   // FIXME: não estamos interessados em todos os campos
