@@ -4,19 +4,27 @@ import { invalidDataError, notFoundError } from '@/errors';
 import addressRepository, { CreateAddressParams } from '@/repositories/address-repository';
 import enrollmentRepository, { CreateEnrollmentParams } from '@/repositories/enrollment-repository';
 import { exclude } from '@/utils/prisma-utils';
+import { ViaCEPAddress } from '@/protocols';
 
 // TODO - Receber o CEP por parâmetro nesta função.
-async function getAddressFromCEP() {
-
+async function getAddressFromCEP(cep:string) {
+  const cepNumber = parseInt(cep)
   // FIXME: está com CEP fixo!
-  const result = await request.get(`${process.env.VIA_CEP_API}/37440000/json/`);
-
-  if (!result.data) {
+  const result = await request.get(`${process.env.VIA_CEP_API}/${cepNumber}/json/`);
+  console.log(result.data)
+  if (!result.data||result.data.erro) {
     throw notFoundError();
   }
-
+  const {logradouro, complemento, bairro, localidade, uf}:ViaCEPAddress = result.data
+  const data:ViaCEPAddress = {
+    logradouro,
+    complemento,
+    bairro,
+    localidade,
+    uf,
+  };
   // FIXME: não estamos interessados em todos os campos
-  return result.data;
+  return data;
 }
 
 async function getOneWithAddressByUserId(userId: number): Promise<GetOneWithAddressByUserIdResult> {
